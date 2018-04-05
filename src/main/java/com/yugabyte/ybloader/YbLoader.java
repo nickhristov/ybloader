@@ -29,7 +29,7 @@ public class YbLoader {
     private static final Option TABLE_NAME = new Option("t", "table", true, "Destination table name.");
     private static final Option KEYSPACE_NAME = new Option("k", "keyspace", true, "Destination keyspace name.");
     private static final Option HOST = new Option("h", "host", true, "Yugabyte server host.");
-    private static final Option COLUMNS = new Option("c", "columns", true, "The list of columns in a comma delimted format. It must match the CSV file format.");
+    private static final Option COLUMNS = new Option("c", "columns", true, "The list of columns in a comma delimited format. It must match the CSV file format.");
     private static final Option PARALLELISM = new Option("p", "parallelism", true, "The parallelism of loading. By default set to 1.");
     private static final Option BATCH_SIZE = new Option("b", "batch", true, "The batch size. By default set to 150.");
 
