@@ -9,6 +9,8 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import javax.validation.constraints.NotNull;
+
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.DataType;
@@ -62,7 +64,9 @@ class LoaderTask implements Callable<Pair<Integer, Long>> {
     /**
      * Traverse input file and process each line.
      */
+    @NotNull
     public Pair<Integer, Long> call() throws Exception {
+        long duration;
         try (FileInputStream inputStream = new FileInputStream(inFile);
              Scanner sc = new Scanner(inputStream, "UTF-8");
              Session session = cluster.newSession()) {
@@ -75,7 +79,7 @@ class LoaderTask implements Callable<Pair<Integer, Long>> {
                 processLine(session, preparedStatement, line);
                 numRowsProcessed++;
                 if (numRowsProcessed % logStatsFrequency == 0) {
-                    long duration = System.currentTimeMillis() - startTimeMillis;
+                    duration = System.currentTimeMillis() - startTimeMillis;
                     System.out.println("Processed " + numRowsProcessed + " rows in " +
                             duration / 1000 + "." + (duration % 1000 / 10) + " seconds");
                 }
@@ -88,13 +92,16 @@ class LoaderTask implements Callable<Pair<Integer, Long>> {
             if (sc.ioException() != null) {
                 throw sc.ioException();
             }
-            // If there are leftover, unlogged rows, report them.
+
+            duration = System.currentTimeMillis() - startTimeMillis;
+
+            // If there are leftover, un-logged rows, report them.
             if (numRowsProcessed % logStatsFrequency != 0) {
-                long duration = System.currentTimeMillis() - startTimeMillis;
-                return new Pair<>(numRowsProcessed, duration);
+                System.out.println("Processed " + numRowsProcessed + " rows in " +
+                    duration / 1000 + "." + (duration % 1000 / 10) + " seconds");
             }
         }
-        return null;
+        return new Pair<>(numRowsProcessed, duration);
     }
 
     /**
